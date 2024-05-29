@@ -1,30 +1,28 @@
-﻿using AutoMapper;
-using Labb3API.Services;
+﻿using Labb3API.Services;
 using Microsoft.AspNetCore.Mvc;
 using SUT23TeknikButikModels;
+using SUT23TeknikButikModels.Connections;
 
 namespace Labb3API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LinkController : ControllerBase
+    public class InterestLinkController : ControllerBase
     {
-        private IPersonAndInterests<LinkDto> _links;
-        private IMapper _mapper;
-        public LinkController(IPersonAndInterests<LinkDto> links, IMapper mapper)
+        private ICombinationTables<InterestLinks> _interestLinks;
+
+        public InterestLinkController(ICombinationTables<InterestLinks> interestLinks)
         {
-            _links = links;
-            _mapper = mapper;
+            _interestLinks = interestLinks;
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllLinks()
+        public async Task<IActionResult> GetAllInterestLinks()
         {
             try
             {
-                var links = await _links.GetAll();
-                var linksDto = links.Select(l => _mapper.Map<LinkDto>(l)).ToList();
-                return Ok(linksDto);
+                var il = await _interestLinks.GetAll();
+                return Ok(il);
             }
             catch (Exception)
             {
@@ -32,13 +30,12 @@ namespace Labb3API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error when trying to retrieve from database.");
             }
         }
-
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<LinkDto>> GetLink(int id)
+        public async Task<IActionResult> GetInterestLink(int id)
         {
             try
             {
-                var result = await _links.GetSingle(id);
+                var result = await _interestLinks.GetSingleByID(id);
                 if (result == null)
                 {
                     return NotFound();
@@ -49,46 +46,44 @@ namespace Labb3API.Controllers
             {
 
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error when trying to retrieve from database.");
+
             }
-
-
         }
-
         [HttpPost]
-        public async Task<ActionResult<LinkDto>> CreateNewLink(LinkDto newLink)
+        public async Task<IActionResult> CreateNewInterestLink(InterestLinks newInterestLinks)
         {
             try
             {
-                if (newLink == null)
+                if (newInterestLinks == null)
                 {
                     return BadRequest();
                 }
-                var createdLink = await _links.Add(newLink);
-                return CreatedAtAction(nameof(GetLink),
-                new
-                {
-                    id = createdLink.LinkID
-                }, createdLink);
+                var createdIL = await _interestLinks.Add(newInterestLinks);
+                return CreatedAtAction(nameof(GetInterestLink),
+                    new
+                    {
+                        id = createdIL.InterestLinkID,
+                        
+                    }, createdIL);
             }
             catch (Exception)
             {
+
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error when trying to retrieve from database.");
+
             }
-
-
         }
-
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<LinkDto>> DeleteLink(int id)
+        public async Task<ActionResult<InterestLinks>> DeleteInterestLink(int id)
         {
             try
             {
-                var linkToDelete = await _links.GetSingle(id);
+                var linkToDelete = await _interestLinks.GetSingleByID(id);
                 if (linkToDelete == null)
                 {
                     return NotFound($"Link with id {id} not found to delete");
                 }
-                return await _links.Delete(id);
+                return await _interestLinks.DeleteByID(id);
             }
             catch (Exception)
             {
@@ -97,22 +92,22 @@ namespace Labb3API.Controllers
             }
         }
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<LinkDto>> UpdateLink
-            (int id, LinkDto link)
+        public async Task<ActionResult<InterestLinks>> UpdateInterestLink
+            (int id, InterestLinks iLink)
         {
             try
             {
-                if (id != link.LinkID)
+                if (id != iLink.InterestLinkID)
                 {
                     return BadRequest("Link ID not found/not matching");
                 }
-                var interestToUpdate = await _links.GetSingle(id);
-                if (interestToUpdate == null)
+                var interestLinkToUpdate = await _interestLinks.GetSingleByID(id);
+                if (interestLinkToUpdate == null)
                 {
                     return NotFound($"Link with id {id} not found to update");
 
                 }
-                return await _links.Update(link);
+                return await _interestLinks.Update(iLink);
             }
             catch (Exception)
             {
@@ -122,5 +117,4 @@ namespace Labb3API.Controllers
             }
         }
     }
-
 }

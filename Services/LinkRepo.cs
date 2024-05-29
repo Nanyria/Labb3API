@@ -1,56 +1,71 @@
 ﻿using SUT23TeknikButikModels;
 using Labb3API.Data;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace Labb3API.Services
 {
-    public class LinkRepo : IPersonAndInterests<Link>
+    public class LinkRepo : IPersonAndInterests<LinkDto>
     {
         private AppDbContext _appContext;
-        public LinkRepo(AppDbContext appContext)
+        private IMapper _mapper;
+        public LinkRepo(AppDbContext appContext, IMapper mapper)
         {
             _appContext = appContext;
+            _mapper = mapper;
         }
-        public async Task<Link> Add(Link newEntity)
+        public async Task<LinkDto> Add(LinkDto newEntity)
         {
-            var result = await _appContext.Links.AddAsync(newEntity);
+            var link = _mapper.Map<Link>(newEntity);
+            var result = await _appContext.Links.AddAsync(link);
             await _appContext.SaveChangesAsync();
-            return result.Entity;
+            return _mapper.Map<LinkDto>(result.Entity);
         }
 
-        public async Task<Link> Delete(int id)
+        public async Task<LinkDto> Delete(int id)
         {
-            var result = await _appContext.Links.FirstOrDefaultAsync
-                (i => i.LinkID == id);
+            var result = await _appContext.Links.FirstOrDefaultAsync(i => i.LinkID == id);
+
             if (result != null)
             {
                 _appContext.Links.Remove(result);
                 await _appContext.SaveChangesAsync();
-                return result;
+                return _mapper.Map<LinkDto>(result);
             }
             return null;
         }
 
-        public async Task<IEnumerable<Link>> GetAll()
+        public async Task<IEnumerable<LinkDto>> GetAll()
         {
-            return await _appContext.Links.ToListAsync();
-        }
-
-        public async Task<Link> GetSingle(int id)
-        {
-            return await _appContext.Links.FirstOrDefaultAsync(i => i.LinkID == id);
-        }
-
-        public async Task<Link> Update(Link entity)
-        {
-            var result = await _appContext.Links.FirstOrDefaultAsync
-                (i => i.LinkID == entity.LinkID);
-            if (result != null)
+            var links = await _appContext.Links
+                .Include(il => il.InterestLinks)
+                    .ThenInclude(i => i.Interest)
+                .ToListAsync();
+            if (links != null)
             {
-                result.LinkSite = entity.LinkSite;
+
+                return _mapper.Map<IEnumerable<LinkDto>>(links);
+            }
+            return null;
+
+        }
+
+        public async Task<LinkDto> GetSingle(int id)
+        {
+            var link = await _appContext.Links.FirstOrDefaultAsync(i => i.LinkID == id);
+            return _mapper.Map<LinkDto>(link);
+        }
+
+
+        public async Task<LinkDto> Update(LinkDto entity)
+        {
+            var link = await _appContext.Links.FirstOrDefaultAsync(i => i.LinkID == entity.LinkID);
+            if (link != null)
+            {
+                link.LinkSite = entity.LinkSite;
 
                 await _appContext.SaveChangesAsync();
-                return result;
+                return _mapper.Map<LinkDto>(link);
             }
             return null;
         }

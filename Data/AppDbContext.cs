@@ -14,7 +14,7 @@ namespace Labb3API.Data
         public DbSet<Interest> Interests { get; set; }
         public DbSet<Link> Links { get; set; }
         public DbSet<PersonInterests> PersonInterests { get; set; }
-        public DbSet<PersonalInterestLinks> PersonalInterestLinks { get; set; }
+        public DbSet<InterestLinks> InterestLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,36 +22,32 @@ namespace Labb3API.Data
 
             //mapping PersonInterest
             modelBuilder.Entity<PersonInterests>()
-                .HasKey(pi => new {pi.InterestID,  pi.PersonID});
+                .HasKey(pi => new {pi.PersonID, pi.InterestID});
+
+            modelBuilder.Entity<PersonInterests>()
+                .HasOne(pi => pi.Person)
+                .WithMany(p => p.PersonInterests)
+                .HasForeignKey(pi => pi.PersonID);
 
             modelBuilder.Entity<PersonInterests>()
                 .HasOne(pi => pi.Interests)
                 .WithMany(i => i.PersonInterests)
                 .HasForeignKey(pi => pi.InterestID);
 
-            modelBuilder.Entity<PersonInterests>()
-                .HasOne(pi => pi.person)
-                .WithMany(p => p.PersonInterests)
-                .HasForeignKey(pi => pi.PersonID);
 
 
             //mapping PersonInterest
-            modelBuilder.Entity<PersonalInterestLinks>()
-                .HasKey(pil => new { pil.PersonID, pil.LinkID, pil.InterestID});
+            modelBuilder.Entity<InterestLinks>()
+                .HasKey(pil => new { pil.LinkID, pil.InterestID});
 
-            modelBuilder.Entity<PersonalInterestLinks>()
-                .HasOne(pil => pil.People)
-                .WithMany(p => p.personalInterestLinks)
-                .HasForeignKey(pil => pil.PersonID);
-
-            modelBuilder.Entity<PersonalInterestLinks>()
+            modelBuilder.Entity<InterestLinks>()
                 .HasOne(pil => pil.Link)
-                .WithMany(l => l.personalInterestLinks)
+                .WithMany(l => l.InterestLinks)
                 .HasForeignKey(pil => pil.LinkID);
 
-            modelBuilder.Entity<PersonalInterestLinks>()
+            modelBuilder.Entity<InterestLinks>()
                 .HasOne(pil => pil.Interest)
-                .WithMany(i => i.personalInterestLinks)
+                .WithMany(i => i.InterestLinks)
                 .HasForeignKey(pil => pil.InterestID);
 
             //Seed data
@@ -113,9 +109,16 @@ namespace Labb3API.Data
                 LinkSite = "https://magnusandfriends.se/sv/den-kompletta-surf-guiden/?gad_source=1&gclid=Cj0KCQjwjLGyBhCYARIsAPqTz18D50Ic8DNB1AC5G4p9x7sPzTO-06fC7Xs3faEYufv1PEYx2y0ez-gaAn4VEALw_wcB"
 
             });
-            modelBuilder.Entity<PersonalInterestLinks>().HasData(
-               new PersonalInterestLinks { PersonID = 1, LinkID = 1, InterestID = 1 },
-               new PersonalInterestLinks { PersonID = 2, LinkID = 1, InterestID = 1 }
+            modelBuilder.Entity<Link>().HasData(new Link
+            {
+
+                LinkID = 2,
+                LinkSite = "https://www.lapoint.se/?gad_source=1&gclid=Cj0KCQjw3tCyBhDBARIsAEY0XNkNh8aYEYYJ5v36jgFFx0-Zr2-ZBaodHOYuDRXhyjkWp-uxJCTRI94aAoocEALw_wcB"
+
+            });
+            modelBuilder.Entity<InterestLinks>().HasData(
+               new InterestLinks {  LinkID = 1, InterestID = 1 },
+               new InterestLinks {  LinkID = 2, InterestID = 1 }
            );
 
         }

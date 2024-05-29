@@ -3,6 +3,7 @@ using Labb3API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Labb3API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240527081328_dto")]
+    partial class dto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,73 +24,125 @@ namespace Labb3API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SUT23TeknikButikModels.Connections.InterestLinks", b =>
+            modelBuilder.Entity("InterestLink", b =>
                 {
-                    b.Property<int>("LinkID")
+                    b.Property<int>("InterestsInterestID")
                         .HasColumnType("int");
 
-                    b.Property<int>("InterestID")
+                    b.Property<int>("linksLinkID")
                         .HasColumnType("int");
 
-                    b.Property<int>("InterestLinkID")
+                    b.HasKey("InterestsInterestID", "linksLinkID");
+
+                    b.HasIndex("linksLinkID");
+
+                    b.ToTable("InterestLink");
+                });
+
+            modelBuilder.Entity("InterestPerson", b =>
+                {
+                    b.Property<int>("InterestsInterestID")
                         .HasColumnType("int");
 
-                    b.HasKey("LinkID", "InterestID");
+                    b.Property<int>("peoplePersonID")
+                        .HasColumnType("int");
 
-                    b.HasIndex("InterestID");
+                    b.HasKey("InterestsInterestID", "peoplePersonID");
 
-                    b.ToTable("InterestLinks");
+                    b.HasIndex("peoplePersonID");
 
-                    b.HasData(
-                        new
-                        {
-                            LinkID = 1,
-                            InterestID = 1,
-                            InterestLinkID = 0
-                        },
-                        new
-                        {
-                            LinkID = 2,
-                            InterestID = 1,
-                            InterestLinkID = 0
-                        });
+                    b.ToTable("InterestPerson");
+                });
+
+            modelBuilder.Entity("LinkPerson", b =>
+                {
+                    b.Property<int>("LinksLinkID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PeoplePersonID")
+                        .HasColumnType("int");
+
+                    b.HasKey("LinksLinkID", "PeoplePersonID");
+
+                    b.HasIndex("PeoplePersonID");
+
+                    b.ToTable("LinkPerson");
                 });
 
             modelBuilder.Entity("SUT23TeknikButikModels.Connections.PersonInterests", b =>
                 {
-                    b.Property<int>("PersonID")
+                    b.Property<int>("InterestID")
                         .HasColumnType("int");
 
-                    b.Property<int>("InterestID")
+                    b.Property<int>("PersonID")
                         .HasColumnType("int");
 
                     b.Property<int>("PersonInterestsID")
                         .HasColumnType("int");
 
-                    b.HasKey("PersonID", "InterestID");
+                    b.HasKey("InterestID", "PersonID");
 
-                    b.HasIndex("InterestID");
+                    b.HasIndex("PersonID");
 
                     b.ToTable("PersonInterests");
 
                     b.HasData(
                         new
                         {
-                            PersonID = 1,
                             InterestID = 1,
+                            PersonID = 1,
                             PersonInterestsID = 0
                         },
                         new
                         {
-                            PersonID = 1,
                             InterestID = 2,
+                            PersonID = 1,
                             PersonInterestsID = 0
+                        },
+                        new
+                        {
+                            InterestID = 1,
+                            PersonID = 2,
+                            PersonInterestsID = 0
+                        });
+                });
+
+            modelBuilder.Entity("SUT23TeknikButikModels.Connections.PersonalInterestLinks", b =>
+                {
+                    b.Property<int>("PersonID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LinkID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InterestID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PersonalLinkID")
+                        .HasColumnType("int");
+
+                    b.HasKey("PersonID", "LinkID", "InterestID");
+
+                    b.HasIndex("InterestID");
+
+                    b.HasIndex("LinkID");
+
+                    b.ToTable("PersonalInterestLinks");
+
+                    b.HasData(
+                        new
+                        {
+                            PersonID = 1,
+                            LinkID = 1,
+                            InterestID = 1,
+                            PersonalLinkID = 0
                         },
                         new
                         {
                             PersonID = 2,
+                            LinkID = 1,
                             InterestID = 1,
-                            PersonInterestsID = 0
+                            PersonalLinkID = 0
                         });
                 });
 
@@ -154,11 +209,6 @@ namespace Labb3API.Migrations
                         {
                             LinkID = 1,
                             LinkSite = "https://magnusandfriends.se/sv/den-kompletta-surf-guiden/?gad_source=1&gclid=Cj0KCQjwjLGyBhCYARIsAPqTz18D50Ic8DNB1AC5G4p9x7sPzTO-06fC7Xs3faEYufv1PEYx2y0ez-gaAn4VEALw_wcB"
-                        },
-                        new
-                        {
-                            LinkID = 2,
-                            LinkSite = "https://www.lapoint.se/?gad_source=1&gclid=Cj0KCQjw3tCyBhDBARIsAEY0XNkNh8aYEYYJ5v36jgFFx0-Zr2-ZBaodHOYuDRXhyjkWp-uxJCTRI94aAoocEALw_wcB"
                         });
                 });
 
@@ -204,23 +254,49 @@ namespace Labb3API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SUT23TeknikButikModels.Connections.InterestLinks", b =>
+            modelBuilder.Entity("InterestLink", b =>
                 {
-                    b.HasOne("SUT23TeknikButikModels.Interest", "Interest")
-                        .WithMany("InterestLinks")
-                        .HasForeignKey("InterestID")
+                    b.HasOne("SUT23TeknikButikModels.Interest", null)
+                        .WithMany()
+                        .HasForeignKey("InterestsInterestID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SUT23TeknikButikModels.Link", "Link")
-                        .WithMany("InterestLinks")
-                        .HasForeignKey("LinkID")
+                    b.HasOne("SUT23TeknikButikModels.Link", null)
+                        .WithMany()
+                        .HasForeignKey("linksLinkID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("InterestPerson", b =>
+                {
+                    b.HasOne("SUT23TeknikButikModels.Interest", null)
+                        .WithMany()
+                        .HasForeignKey("InterestsInterestID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Interest");
+                    b.HasOne("SUT23TeknikButikModels.Person", null)
+                        .WithMany()
+                        .HasForeignKey("peoplePersonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("Link");
+            modelBuilder.Entity("LinkPerson", b =>
+                {
+                    b.HasOne("SUT23TeknikButikModels.Link", null)
+                        .WithMany()
+                        .HasForeignKey("LinksLinkID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SUT23TeknikButikModels.Person", null)
+                        .WithMany()
+                        .HasForeignKey("PeoplePersonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SUT23TeknikButikModels.Connections.PersonInterests", b =>
@@ -231,7 +307,7 @@ namespace Labb3API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SUT23TeknikButikModels.Person", "Person")
+                    b.HasOne("SUT23TeknikButikModels.Person", "person")
                         .WithMany("PersonInterests")
                         .HasForeignKey("PersonID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -239,24 +315,53 @@ namespace Labb3API.Migrations
 
                     b.Navigation("Interests");
 
-                    b.Navigation("Person");
+                    b.Navigation("person");
+                });
+
+            modelBuilder.Entity("SUT23TeknikButikModels.Connections.PersonalInterestLinks", b =>
+                {
+                    b.HasOne("SUT23TeknikButikModels.Interest", "Interest")
+                        .WithMany("personalInterestLinks")
+                        .HasForeignKey("InterestID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SUT23TeknikButikModels.Link", "Link")
+                        .WithMany("personalInterestLinks")
+                        .HasForeignKey("LinkID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SUT23TeknikButikModels.Person", "People")
+                        .WithMany("personalInterestLinks")
+                        .HasForeignKey("PersonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Interest");
+
+                    b.Navigation("Link");
+
+                    b.Navigation("People");
                 });
 
             modelBuilder.Entity("SUT23TeknikButikModels.Interest", b =>
                 {
-                    b.Navigation("InterestLinks");
-
                     b.Navigation("PersonInterests");
+
+                    b.Navigation("personalInterestLinks");
                 });
 
             modelBuilder.Entity("SUT23TeknikButikModels.Link", b =>
                 {
-                    b.Navigation("InterestLinks");
+                    b.Navigation("personalInterestLinks");
                 });
 
             modelBuilder.Entity("SUT23TeknikButikModels.Person", b =>
                 {
                     b.Navigation("PersonInterests");
+
+                    b.Navigation("personalInterestLinks");
                 });
 #pragma warning restore 612, 618
         }

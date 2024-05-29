@@ -9,16 +9,16 @@ namespace Labb3API.Controllers
     [ApiController]
     public class InterestController : ControllerBase
     {
-        private IPersonAndInterests<Interest> _interests;
+        private IPersonAndInterests<InterestDto> _interests;
 
-        public InterestController(IPersonAndInterests<Interest> interests)
+        public InterestController(IPersonAndInterests<InterestDto> interests)
         {
             _interests = interests;
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAllInterests()
+        public async Task<ActionResult<InterestDto>> GetAllInterests()
         {
             try
             {
@@ -31,7 +31,7 @@ namespace Labb3API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Interest>> GetInterest(int id)
+        public async Task<ActionResult<InterestDto>> GetInterest(int id)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace Labb3API.Controllers
             
         }
         [HttpPost]
-        public async Task<ActionResult<Interest>> CreateNewInterest(Interest newInterest)
+        public async Task<ActionResult<InterestDto>> CreateNewInterest(InterestDto newInterest)
         {
             try
             {
@@ -73,7 +73,7 @@ namespace Labb3API.Controllers
             
         }
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult<Interest>> DeleteInterest(int id)
+        public async Task<ActionResult<InterestDto>> DeleteInterest(int id)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace Labb3API.Controllers
             }
         }
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<Interest>> UpdateInterest(int id, Interest interest)
+        public async Task<ActionResult<InterestDto>> UpdateInterest(int id, InterestDto interest)
         {
             try
             {

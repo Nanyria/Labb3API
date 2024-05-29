@@ -1,4 +1,5 @@
-﻿using Labb3API.Services;
+﻿using AutoMapper;
+using Labb3API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SUT23TeknikButikModels;
@@ -10,10 +11,12 @@ namespace Labb3API.Controllers
     public class PersonController : ControllerBase
     {
         private IPersonAndInterests<PersonDto> _people;
+        private IMapper _mapper;
 
-        public PersonController(IPersonAndInterests<PersonDto> people)
+        public PersonController(IPersonAndInterests<PersonDto> people, IMapper mapper)
         {
             _people = people;
+            _mapper = mapper;
         }
 
 
@@ -23,8 +26,9 @@ namespace Labb3API.Controllers
             try
             {
                 var people = await _people.GetAll();
-                return Ok(people);
-                    
+                var peopleDto = people.Select(p => _mapper.Map<PersonDto>(p)).ToList();
+                return Ok(peopleDto);
+
             }
             catch (Exception)
             {
@@ -101,12 +105,12 @@ namespace Labb3API.Controllers
             {
                 if (id != person.PersonID)
                 {
-                    return BadRequest("Product ID not found/not matching");
+                    return BadRequest("Person ID not found/not matching");
                 }
                 var interestToUpdate = await _people.GetSingle(id);
                 if ( interestToUpdate == null)
                 {
-                    return NotFound($"Product with id {id} not found to update");
+                    return NotFound($"Person with id {id} not found to update");
 
                 }
                 return await _people.Update(person);

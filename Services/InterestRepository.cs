@@ -1,61 +1,83 @@
 ﻿using SUT23TeknikButikModels;
 using Labb3API.Data;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace Labb3API.Services
 {
-    public class InterestRepository : IPersonAndInterests<Interest>
+    public class InterestRepository : IPersonAndInterests<InterestDto>
     {
         private AppDbContext _appContext;
-        public InterestRepository(AppDbContext appContext)
+        private IMapper _mapper;
+        public InterestRepository(AppDbContext appContext, IMapper mapper)
         {
             _appContext = appContext;
+            _mapper = mapper;
         }
-        public async Task<Interest> Add(Interest newEntity)
+        public async Task<InterestDto> Add(InterestDto newEntity)
         {
-            var result = await _appContext.Interests.AddAsync(newEntity);
+
+            var interest = _mapper.Map<Interest>(newEntity);
+            var result = await _appContext.Interests.AddAsync(interest);
             await _appContext.SaveChangesAsync();
-            return result.Entity;
+            return _mapper.Map<InterestDto>(result.Entity);
+
         }
 
-        public async Task<Interest> Delete(int id)
+        public async Task<InterestDto> Delete(int id)
         {
-            var result = await _appContext.Interests.FirstOrDefaultAsync
-                (i => i.InterestID == id);
-            if (result != null)
+            var interest = await _appContext.Interests.FirstOrDefaultAsync(p => p.InterestID == id);
+            if (interest != null)
             {
-                _appContext.Interests.Remove(result);
+                _appContext.Interests.Remove(interest);
                 await _appContext.SaveChangesAsync();
-                return result;
+                return _mapper.Map<InterestDto>(interest);
             }
             return null;
         }
 
-        public async Task<IEnumerable<Interest>> GetAll()
+        public async Task<IEnumerable<InterestDto>> GetAll()
         {
-            return await _appContext.Interests.ToListAsync();
-        }
-
-        public async Task<Interest> GetSingle(int id)
-        {
-            return await _appContext.Interests.FirstOrDefaultAsync(i => i.InterestID == id);
-        }
-
-        public async Task<Interest> Update(Interest entity)
-        {
-            var result = await _appContext.Interests.FirstOrDefaultAsync
-                (i => i.InterestID == entity.InterestID);
-            if (result != null)
+            var interest = await _appContext.Interests
+                .Include(il => il.InterestLinks)
+                    .ThenInclude(l => l.Link)
+                .ToListAsync();
+            if (interest != null)
             {
-                result.InterestTitle = entity.InterestTitle;
-                result.InterestsDescription = entity.InterestsDescription;
 
+                return _mapper.Map<IEnumerable<InterestDto>>(interest);
+            }
+            return null;
 
-                await _appContext.SaveChangesAsync();
-                return result;
+        }
+
+        public async Task<InterestDto> GetSingle(int id)
+        {
+            var interest = await _appContext.Interests.FirstOrDefaultAsync(p => p.InterestID == id);
+            if (interest != null)
+            {
+                return _mapper.Map<InterestDto>(interest);
             }
             return null;
         }
+
+        public async Task<InterestDto> Update(InterestDto entity)
+        {
+            var interestToUpdate = await _appContext.Interests.Include(p => p.PersonInterests).ThenInclude(pi => pi.Interests)
+                                                .FirstOrDefaultAsync(p => p.InterestID == entity.InterestID);
+            if (interestToUpdate != null)
+            {
+                interestToUpdate.InterestTitle = entity.InterestTitle;
+                interestToUpdate.InterestsDescription = entity.InterestsDescription;
+
+
+                await _appContext.SaveChangesAsync();
+                return _mapper.Map<InterestDto>(interestToUpdate);
+            }
+            return null;
+        }
+
+
     }
 }
 

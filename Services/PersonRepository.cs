@@ -40,12 +40,12 @@ namespace Labb3API.Services
         public async Task<IEnumerable<PersonDto>> GetAll()
         {
             var people = await _appContext.People
-            .Include(p => p.personalInterestLinks)
-                .ThenInclude(pi => pi.Interest)
-                    .ThenInclude(i => i.personalInterestLinks)
+            .Include(p => p.PersonInterests)
+                .ThenInclude(pi => pi.Interests)
+                    .ThenInclude(i => i.InterestLinks)
                         .ThenInclude(il => il.Link)
             .ToListAsync();
-            return _mapper.Map<List<PersonDto>>(people);
+            return _mapper.Map<IEnumerable<PersonDto>>(people);
         }
 
         //public async Task<IEnumerable<PersonDto>> GetAll()
@@ -64,7 +64,7 @@ namespace Labb3API.Services
             var person = await _appContext.People
                 .Include(p => p.PersonInterests)
                     .ThenInclude(pi => pi.Interests)
-                        .ThenInclude(i => i.personalInterestLinks)
+                        .ThenInclude(i => i.InterestLinks)
                             .ThenInclude(il => il.Link)
                 .FirstOrDefaultAsync(p => p.PersonID == id);
             return _mapper.Map<PersonDto>(person);
@@ -75,7 +75,7 @@ namespace Labb3API.Services
             var person = await _appContext.People
                 .Include(p => p.PersonInterests)
                     .ThenInclude(pi => pi.Interests)
-                        .ThenInclude(i => i.personalInterestLinks)
+                        .ThenInclude(i => i.InterestLinks)
                             .ThenInclude(il => il.Link)
                 .FirstOrDefaultAsync(p => p.PersonID == entity.PersonID);
 
