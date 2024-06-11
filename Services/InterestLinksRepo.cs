@@ -23,6 +23,7 @@ namespace Labb3API.Services
         {
             var result = await _appContext.InterestLinks.FirstOrDefaultAsync(
                 p => p.LinkID == linkID);
+            if(result != null)
             {
                 _appContext.InterestLinks.Remove(result);
                 await _appContext.SaveChangesAsync();
